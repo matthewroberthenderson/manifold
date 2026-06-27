@@ -1,0 +1,43 @@
+name: Deploy WebGL React App
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.51
+
+      - name: Build WASM
+        run: |
+          mkdir -p public/wasm
+          emcc src/cpp/main.cpp -o public/wasm/renderer.js \
+            -s WASM=1 \
+            -s MODULARIZE=1 \
+            -s ENVIRONMENT=web \
+            -s EXPORT_NAME='createRenderer' \
+            -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' \
+            -s EXPORTED_FUNCTIONS='["_update_input", "_add_cam_yaw", "_clear_map", "_add_wall", "_set_player_pos", "_main"]' \
+            -lGL -O3
+
+      - name: Install and Build React
+        run: |
+          npm install
+          npm run build
+        env:
+          CI: false
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
+          branch: gh-pages
