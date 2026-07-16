@@ -1,4 +1,5 @@
 # Manifold (WASM / Raycaster)
+[live demo] (https://matthewroberthenderson.github.io/manifold/)
 Good fun to motivate me learning the pros and cons of WebAssembly in 2026.
 Last time i tried this i did **NOT** have a good time. Was not so bad this time round.
 
